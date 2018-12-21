@@ -13,6 +13,19 @@ You will be able to:
 - Have an overview of the training and prediction stages involved decision tree classification
 - Understand the importance of a cost function for decision trees
 
+
+## Objectives (SG)
+YWBAT
+* Identify the parts of a decision tree
+* Describe how they are used to create partitions in a sample space ,s.
+* Describe the overall process of decision trees.
+    * Data splits on labels and features and bins in itself
+    * splits on root node 
+    * data cascades down
+    * splits on interior nodes
+    * looking for information
+* Describe how the gini coefficient is used with decision trees.
+
 ## From Graphs to Decision Trees
 
 We have seen basic classification algorithms (a.k.a classifers), including Naive Bayes and signoid based logistic regression earlier. A decision tree is somewhat different type of classifier that performs through a **recursive partition of the sample space**. In this lesson, we shall get a conceptual understanding of how this is achieved. 
@@ -52,6 +65,34 @@ So this is the basic idea behind decision trees , every internal node checks for
 
 <img src="dt5.png" width=500>
 
+# What are the parts?
+* Root Node
+    * The start of the decision
+    * A feature!
+    * Hey dummy (rafael) we need the best performing feature! 
+        * Reduces uncertainty about what the label is going to be the most. - Chris
+        * High correlation? (probably correct)
+* Directional edge from graph theory, Branches
+    * Choices go here that come from some decision about the feature
+        * based on the features values
+* Interior Node
+    * Similar to root node, another feature
+* Leaf Node
+    * Incoming branches and no outgoing branches
+    * Terminal node
+    * Final Decisions/Labels
+
+# What do decision trees do?
+* Define the process to make decisions in order to determine the outcome (predictions/labels/targets).
+
+# What is a next question:
+    * what's the sklearn library
+        * sklearn.ensemble.DecisionTreeClassifier (Regression)
+    * How do you decide on which features to split on?
+    * Is it personal or nah? (not personal, use the data)
+    * How deep do we go? 
+    * What happens when the data isn't partitioned?
+
 A real dataset would usually have a lot more features than the example above and will create much bigger trees, but the idea will remain exactly the same. The idea of feature importance is of high importance as selecting the correct feature to make a split that define complexity and effectiveness of the classification process. Regression trees are represented in the same manner, just they predict continuous values like price of a house. 
 
 ## Training Process
@@ -76,12 +117,117 @@ The training process of a decision tree can be generalized as "__Recursive binar
 There are couple of algorithms there to build a decision tree:
 
 * __CART (Classification and Regression Trees)__ uses Gini Indexas metric.
+    * gi = 1 - (pi/t)^2 - (ni/t)^2
+    * gi*(pi+ni)/t
 * __ID3 (Iterative Dichotomiser 3)__ uses Entropy function and Information gain as metrics.
 
 Let's quickly see why using these cost criteria is imperative for building a tree. We shall try to develop an intuition using a simple example. Let’s just take a famous dataset in the machine learning world which is weather dataset(playing game Y or N based on weather condition).
 
 <img src="weather.jpeg" width=300>
 
+
+
+
+
+```python
+# Calculate the ginny index for temperature (hot, mild, cool)
+# first step split into all categories/values by play
+# 1 - hot, 0 - mild, -1 - cold
+no_play_temp = [1, 1, -1, 0, 0] # counts
+yes_play_temp = [1, 0, -1, -1, -1, 0, 0, 0, 1] # counts
+
+# probability density of each group in the nos
+hot_nos = 2/5
+mild_nos = 2/5
+cold_nos = 1/5
+
+# probability density of each group in the yess
+hot_yess = 2/9
+mild_yess = 4/9
+cold_yess = 3/9
+
+g_nos = hot_nos**2 + mild_nos**2 + cold_nos**2
+g_yess = hot_yess**2 + mild_yess**2 + cold_yess**2
+
+print(g_nos, g_yess)
+
+g_nos = 1 - g_nos # gini index of each label
+g_yess = 1 - g_yess # gini index of each label
+print(g_nos, g_yess)
+
+g_weighted = g_nos * (5/14) + g_yess*(9/14) # gini index of the feature
+print(g_weighted) # higher number indicates more impurity
+```
+
+    0.3600000000000001 0.35802469135802467
+    0.6399999999999999 0.6419753086419753
+    0.6412698412698412
+
+
+# Gini Index
+* G(f) -> We apply the Gini Function (algorithm) to a feature
+
+
+```python
+# Let's calculate it for windy
+# Step 1, split your data by labels
+
+no = [0, 1, 1, 0, 1] # these are the windy values for the No's
+yes = [0, 0, 0, 1, 0, 0, 1, 1, 0] # these are the windy values for the Yes's
+
+# Step 2, calulate the probability density for each value in each group (no and yes)
+p0n = 2/5
+p1n = 3/5
+
+p0y = 6/9
+p1y = 3/9
+
+# Step 3, calcualte the Gi for each group
+gn = 1 - p0n**2 - p1n**2
+gy = 1 - p0y**2 - p1y**2
+
+# Step 4, calculate the weighted sum
+G = gn*(5/14) + gy*(9/14) 
+G
+```
+
+
+
+
+    0.4571428571428572
+
+
+
+
+```python
+no = [1,1,0,1,1]
+yes= [1,1,0,0,0,0,0,1,0]
+
+p0n=1/5
+p1n=4/5
+
+p0y=6/9
+p1y=3/9
+
+# Step 3, calcualte the Gi for each group
+gn = 1 - p0n**2 - p1n**2 # low because p0n was everything it would be 1 - 1 = 0
+print(gn)
+gy = 1 - p0y**2 - p1y**2
+print(gy)
+
+# Step 4, calculate the weighted sum
+G = gn*(5/14) + gy*(9/14) 
+G
+```
+
+    0.31999999999999984
+    0.4444444444444445
+
+
+
+
+
+    0.39999999999999997
 
 
 
