@@ -17,14 +17,18 @@ You will be able to:
 ## Objectives (SG)
 YWBAT
 * Identify the parts of a decision tree
+    * Root node (features)
+    * Branches (feature values)
+    * Interior nodes (features)
+    * Leaf nodes (targets)
 * Describe how they are used to create partitions in a sample space ,s.
 * Describe the overall process of decision trees.
-    * Data splits on labels and features and bins in itself
-    * splits on root node 
-    * data cascades down
-    * splits on interior nodes
-    * looking for information
+    * Determine best feature to use as root node using either the Gini Index or Entropy and information gain
+    * develops the branches based on its feature value
+    * rinse and repeat above to determine the interior nodes depending on our predetermined maximum tree depth
 * Describe how the gini coefficient is used with decision trees.
+    * the gini coefficient measures how pure of a split a feature creates for our target variable.
+    * it helps us determine what feature to start with and order of features to use
 
 ## From Graphs to Decision Trees
 
@@ -66,32 +70,16 @@ So this is the basic idea behind decision trees , every internal node checks for
 <img src="dt5.png" width=500>
 
 # What are the parts?
-* Root Node
-    * The start of the decision
-    * A feature!
-    * Hey dummy (rafael) we need the best performing feature! 
-        * Reduces uncertainty about what the label is going to be the most. - Chris
-        * High correlation? (probably correct)
-* Directional edge from graph theory, Branches
-    * Choices go here that come from some decision about the feature
-        * based on the features values
-* Interior Node
-    * Similar to root node, another feature
-* Leaf Node
-    * Incoming branches and no outgoing branches
-    * Terminal node
-    * Final Decisions/Labels
+* Root Node (Features)
+* Branches (Feature Value Condition)
+* Interior Nodes (Features)
+* Leaf Nodes (Classes, Labels, Targets, ys)
 
 # What do decision trees do?
-* Define the process to make decisions in order to determine the outcome (predictions/labels/targets).
+* Helps to classify data by ______
+
 
 # What is a next question:
-    * what's the sklearn library
-        * sklearn.ensemble.DecisionTreeClassifier (Regression)
-    * How do you decide on which features to split on?
-    * Is it personal or nah? (not personal, use the data)
-    * How deep do we go? 
-    * What happens when the data isn't partitioned?
 
 A real dataset would usually have a lot more features than the example above and will create much bigger trees, but the idea will remain exactly the same. The idea of feature importance is of high importance as selecting the correct feature to make a split that define complexity and effectiveness of the classification process. Regression trees are represented in the same manner, just they predict continuous values like price of a house. 
 
@@ -130,7 +118,42 @@ Let's quickly see why using these cost criteria is imperative for building a tre
 
 
 ```python
-# Calculate the ginny index for temperature (hot, mild, cool)
+# Calcualte the gini index for humidity (high normal)
+# gini index -> purity of a split (are we dividing play_yes and play_no well?)
+# 0 = normal, 1 = high
+no_play_humidity = [1, 1, 0, 1, 1] 
+yes_play_humidity = [1, 1, 0, 0, 0, 0, 0, 1, 0] 
+
+
+# P(normal humidity|no play)
+no_normal = 0.20 # 0.20^2 = 0.04
+# P(high humidity | no play)
+no_high = 0.80 # 0.80^2 = 0.64
+
+# P(normal humdity | yes play)
+yes_normal = 6.0/9.0
+# P(high humidity | yes play)
+yes_high = 3.0/9.0
+
+
+# Weights the larger probabilities
+# if g << 1 both numbers must be small (close)
+# if g ~ 1 one condition has really high probability
+g_nos = no_normal**2 + no_high**2
+# g ~ 1 both numbers must be small (close)
+# g ~ 0 one condition has really high probability
+g_nos = 1 - g_nos
+
+g_yes = yes_normal**2 + yes_high**2
+g_yes = 1 - g_yes
+
+
+# gini ~ 1 this means really really impure split
+# gini ~ 0 this means really really pure split
+gini = g_nos * (5/14) + g_yes*(9/14)
+print("g_humid = {}".format(gini))
+
+# Calculate the gini index for temperature (hot, mild, cool)
 # first step split into all categories/values by play
 # 1 - hot, 0 - mild, -1 - cold
 no_play_temp = [1, 1, -1, 0, 0] # counts
@@ -149,19 +172,16 @@ cold_yess = 3/9
 g_nos = hot_nos**2 + mild_nos**2 + cold_nos**2
 g_yess = hot_yess**2 + mild_yess**2 + cold_yess**2
 
-print(g_nos, g_yess)
 
 g_nos = 1 - g_nos # gini index of each label
 g_yess = 1 - g_yess # gini index of each label
-print(g_nos, g_yess)
 
 g_weighted = g_nos * (5/14) + g_yess*(9/14) # gini index of the feature
-print(g_weighted) # higher number indicates more impurity
+print("temp_gini = {}".format(g_weighted)) # higher number indicates more impurity
 ```
 
-    0.3600000000000001 0.35802469135802467
-    0.6399999999999999 0.6419753086419753
-    0.6412698412698412
+    g_humid = 0.3999999999999999
+    temp_gini = 0.6412698412698412
 
 
 # Gini Index
